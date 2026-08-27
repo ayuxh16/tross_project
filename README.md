@@ -1,25 +1,20 @@
 # LinkedIn Profile API
 
-> A Dockerized **Fastify + TypeScript** REST API that reverse-engineers LinkedIn's internal Voyager/RSC responses to extract publicly visible profile information as structured JSON using **Playwright**.
+A Dockerized **Fastify + TypeScript** REST API that reverse-engineers LinkedIn's internal **Voyager/Dash** endpoints to extract publicly visible profile information as structured JSON.
 
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
-![Fastify](https://img.shields.io/badge/Fastify-5-black?logo=fastify)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
-![Playwright](https://img.shields.io/badge/Playwright-Automation-2EAD33?logo=playwright&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green)
-
-> **Educational Disclaimer:** This project is intended for educational and research purposes only. It is not affiliated with or endorsed by LinkedIn.
+> **Disclaimer:** This project is built for educational and research purposes only. It is not affiliated with or endorsed by LinkedIn.
 
 ---
 
 ## Features
 
-- Extract public LinkedIn profile information from a profile URL
+- Reverse-engineered LinkedIn Voyager/Dash API integration
+- No browser automation (no Playwright)
 - Fastify REST API with TypeScript
-- Playwright-powered authenticated scraping
-- Dockerized for one-command deployment
-- Swagger/OpenAPI interactive documentation
-- Environment variable based authentication
+- Structured JSON response
+- Dockerized for easy deployment
+- Swagger/OpenAPI documentation
+- Cookie-based authenticated requests
 
 ---
 
@@ -29,44 +24,17 @@
 |------------|---------|
 | TypeScript | Backend language |
 | Fastify | REST API framework |
-| Playwright | Browser automation |
+| Undici | HTTP client |
 | Docker | Containerization |
 | Swagger | API documentation |
-
----
-
-## Architecture
-
-```text
-                Client Application
-                        │
-                        ▼
-          POST /api/v1/profile
-                        │
-                        ▼
-              Fastify Route Layer
-                        │
-                        ▼
-                Profile Controller
-                        │
-                        ▼
-               Voyager Service
-                        │
-                        ▼
-       Playwright + LinkedIn Voyager
-                        │
-                        ▼
-            Structured JSON Response
-```
 
 ---
 
 ## Project Structure
 
 ```text
-linkedin-profile-api/
-│
-├── src/
+tross_project/
+│── src/
 │   ├── controllers/
 │   ├── routes/
 │   ├── schemas/
@@ -87,38 +55,29 @@ linkedin-profile-api/
 
 ## API Endpoint
 
-### Scrape LinkedIn Profile
+### POST `/api/v1/profile`
 
-**POST** `/api/v1/profile`
+Extract publicly available information from a LinkedIn profile.
 
 ### Request
 
 ```json
 {
-  "url": "https://www.linkedin.com/in/johndoe/"
+  "url": "https://www.linkedin.com/in/username/"
 }
 ```
 
-### Successful Response
+### Response
 
 ```json
 {
   "success": true,
   "data": {
-    "name": "John Doe",
-    "headline": "Software Engineer",
-    "location": "Bengaluru, Karnataka, India",
-    "about": "Building scalable backend systems..."
+    "name": "Ayush Singh",
+    "headline": "Student at IIIT Senapati, Manipur",
+    "location": null,
+    "about": null
   }
-}
-```
-
-### Error Response
-
-```json
-{
-  "success": false,
-  "error": "Invalid LinkedIn profile URL"
 }
 ```
 
@@ -129,8 +88,8 @@ linkedin-profile-api/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/ayuxh16/linkedin-profile-api.git
-cd linkedin-profile-api
+git clone https://github.com/ayuxh16/tross_project.git
+cd tross_project
 ```
 
 ### 2. Install dependencies
@@ -141,27 +100,27 @@ npm install
 
 ### 3. Configure environment variables
 
-Create a `.env` file from `.env.example`
+Create a `.env` file from `.env.example`:
 
 ```env
-LI_AT=your_linkedin_li_at_cookie
-JSESSIONID="ajax:xxxxxxxx"
+LI_AT=your_li_at_cookie
+JSESSIONID="ajax:xxxxxxxxxxxx"
 PORT=3000
 ```
 
-### 4. Start development server
+### 4. Start the server
 
 ```bash
 npm run dev
 ```
 
-Server runs at:
+API:
 
 ```text
 http://localhost:3000
 ```
 
-Swagger documentation:
+Swagger:
 
 ```text
 http://localhost:3000/docs
@@ -171,22 +130,16 @@ http://localhost:3000/docs
 
 ## Docker
 
-### Build the image
+### Build
 
 ```bash
 docker build -t linkedin-profile-api .
 ```
 
-### Run the container
+### Run
 
 ```bash
 docker run -p 3000:3000 --env-file .env linkedin-profile-api
-```
-
-The API will be available at:
-
-```text
-http://localhost:3000
 ```
 
 ---
@@ -197,25 +150,27 @@ http://localhost:3000
 |----------|-------------|
 | `LI_AT` | LinkedIn authentication cookie |
 | `JSESSIONID` | LinkedIn CSRF session cookie |
-| `PORT` | Server port (default: `3000`) |
+| `PORT` | Server port |
 
 ---
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Compile TypeScript |
-| `npm start` | Run production build |
+```bash
+npm run dev      # Development server
+npm run build    # Compile TypeScript
+npm start        # Production server
+```
 
 ---
 
-## Roadmap
+## How It Works
 
-- Experience & Education extraction
-- Skills & Certifications endpoint
-- Request rate limiting and caching
+1. Accepts a LinkedIn public profile URL.
+2. Extracts the profile's public identifier.
+3. Sends authenticated requests to LinkedIn's internal Voyager/Dash endpoints.
+4. Parses the returned JSON.
+5. Returns structured profile information through a REST API.
 
 ---
 
@@ -224,9 +179,4 @@ http://localhost:3000
 **Ayush Singh**
 
 - GitHub: https://github.com/ayuxh16
-
----
-
-## License
-
-This project is licensed under the **MIT License**.
+- LinkedIn: https://www.linkedin.com/in/ayush-singh-41395b2a2/
