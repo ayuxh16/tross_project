@@ -1,16 +1,26 @@
-import axios from "axios";
-import dotenv from "dotenv";
+import { request } from "undici";
+import { cookies } from "./auth.service.js";
 
-dotenv.config();
+export async function linkedinGet(url: string) {
+  const { body, statusCode } = await request(url, {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      cookie: `li_at=${cookies.liAt}; JSESSIONID=${cookies.jsession}`,
+      "csrf-token": cookies.jsession.replace(/"/g, ""),
+      "x-restli-protocol-version": "2.0.0",
+      "x-li-lang": "en_US",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/139.0 Safari/537.36"
+    }
+  });
 
-export const linkedin = axios.create({
-  baseURL: "https://www.linkedin.com",
-  headers: {
-    Cookie: `li_at=${process.env.LI_AT}; JSESSIONID=${process.env.JSESSIONID}`,
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/138.0 Safari/537.36",
-    Accept: "application/json",
-    "csrf-token": process.env.JSESSIONID?.replace(/"/g, "") || "",
-    "x-restli-protocol-version": "2.0.0",
-  },
-});
+  const json = await body.json();
+
+  if (statusCode !== 200) {
+    console.error(JSON.stringify(json, null, 2));
+    throw new Error(`LinkedIn returned ${statusCode}`);
+  }
+
+  return json;
+}

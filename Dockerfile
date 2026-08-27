@@ -1,9 +1,10 @@
-FROM mcr.microsoft.com/playwright:v1.55.0-jammy
+FROM node:22-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+
+RUN npm ci
 
 COPY . .
 
@@ -11,4 +12,4 @@ RUN npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "start"]    
+CMD ["npm","start"]

@@ -1,41 +1,15 @@
-import { FastifyPluginAsync } from "fastify";
-import { getProfile } from "../controllers/profile.controller.js";
+import { FastifyInstance } from "fastify";
+import { profileController } from "../controllers/profile.controller.js";
+import { profileBody } from "../schemas/profile.schema.js";
 
-const routes: FastifyPluginAsync = async (app) => {
+export default async function profileRoute(app: FastifyInstance) {
   app.post(
-    "/profile",
+    "/api/v1/profile",
     {
       schema: {
-        tags: ["Profile"],
-        summary: "Scrape a LinkedIn profile",
-
-        body: {
-          type: "object",
-          required: ["url"],
-          properties: {
-            url: {
-              type: "string",
-              format: "uri",
-            },
-          },
-        },
-
-        response: {
-          200: {
-            type: "object",
-            properties: {
-              success: { type: "boolean" },
-              data: {
-                type: "object",
-                additionalProperties: true, // IMPORTANT
-              },
-            },
-          },
-        },
+        body: profileBody,
       },
     },
-    getProfile
+    profileController
   );
-};
-
-export default routes;
+}

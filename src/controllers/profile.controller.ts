@@ -1,26 +1,27 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { extractPublicId } from "../utils/extractPublicId.js";
-import { fetchVoyagerProfile } from "../services/linkedin/voyager.service.js";
-import { parseProfile } from "../utils/parseProfile.js";
+import { FastifyRequest, FastifyReply } from "fastify";
+import { scrapeProfile } from "../services/linkedin/voyager.service.js";
 
-export async function getProfile(
-  request: FastifyRequest<{ Body: { url: string } }>,
+type Body = {
+  url: string;
+};
+
+export async function profileController(
+  req: FastifyRequest<{ Body: Body }>,
   reply: FastifyReply
 ) {
   try {
-    const publicId = extractPublicId(request.body.url);
-    const raw = await fetchVoyagerProfile(publicId);
+    const { url } = req.body;
 
-    const profile = parseProfile(raw.aboveActivity);
+    const data = await scrapeProfile(url);
 
     return reply.send({
       success: true,
-      data: raw.aboveActivity,
+      data,
     });
   } catch (err) {
     return reply.code(500).send({
       success: false,
-      message: err instanceof Error ? err.message : "Unknown error",
+      error: err instanceof Error ? err.message : "Unknown error",
     });
   }
 }

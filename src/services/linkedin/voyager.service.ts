@@ -1,39 +1,16 @@
-import { getLinkedInContext } from "./auth.service.js";
+import { linkedinGet } from "./http.service.js";
+import { extractPublicId } from "../../utils/extractPublicId.js";
+import { parseProfile } from "../../utils/parseProfile.js";
 
-export async function fetchVoyagerProfile(publicId: string) {
-  const context = await getLinkedInContext();
-  const page = await context.newPage();
+export async function scrapeProfile(profileUrl: string) {
+  const publicId = extractPublicId(profileUrl);
 
-  let aboveActivity = "";
-  let activity = "";
+  const url =
+    "https://www.linkedin.com/voyager/api/identity/dash/profiles" +
+    `?q=memberIdentity&memberIdentity=${encodeURIComponent(publicId)}` +
+    "&decorationId=com.linkedin.voyager.dash.deco.identity.profile.TopCardCore-39";
 
-  page.on("response", async (response) => {
-    const url = response.url();
+  const raw = await linkedinGet(url);
 
-    try {
-      if (
-        url.includes("/flagship-web/rsc-action/actions/component") &&
-        url.includes("profileCardsAboveActivity")
-      ) {
-        aboveActivity = await response.text();
-      }
-
-      if (
-        url.includes("/flagship-web/rsc-action/actions/component") &&
-        url.includes("profileCardsActivity")
-      ) {
-        activity = await response.text();
-      }
-    } catch {}
-  });
-
-  await page.goto(`https://www.linkedin.com/in/${publicId}/`, {
-    waitUntil: "domcontentloaded",
-    timeout: 15000,
-  });
-
-  await page.waitForTimeout(5000);
-  await page.close();
-
-  return { aboveActivity, activity };
+  return parseProfile(raw as any);
 }
